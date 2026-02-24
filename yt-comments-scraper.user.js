@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         YT Comments Scraper v2
+// @name         YT Comments Scraper
 // @namespace    http://tampermonkey.net/
-// @version      2.1.0
+// @version      1.0.0
 // @description  Pobiera WSZYSTKIE komentarze i subkomentarze z YouTube. Eksport do Excel (.xlsx) lub TXT.
 // @author       Michał Marini
 // @match        https://www.youtube.com/*
@@ -136,7 +136,7 @@
         header.appendChild(el('span', {
             color: C.white, fontSize: '13px', fontWeight: '900',
             textTransform: 'uppercase', letterSpacing: '0.1em'
-        }, 'YT Comment Scraper v2'));
+        }, 'YT Comment Scraper'));
         panel.appendChild(header);
 
         const body = el('div', { padding: '16px' });
@@ -651,5 +651,5 @@
     setTimeout(tryActivate, 3000);
     setTimeout(tryActivate, 5000);
 
-    console.log('[YT Scraper v2] >>> URUCHOMIONY <<<');
+    console.log('[YT Scraper] >>> URUCHOMIONY <<<');
 })();
