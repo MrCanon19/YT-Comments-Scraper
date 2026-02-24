@@ -1,74 +1,98 @@
 # YT Comments Scraper
 
-Skrypt Tampermonkey do eksportu zanonimizowanych komentarzy z YouTube do pliku tekstowego.
+Skrypt Tampermonkey do pobierania **WSZYSTKICH** komentarzy i subkomentarzy z YouTube. Eksport do pliku Excel (.xlsx) lub TXT.
 
-**Wersja:** 1.8.2
+**Wersja:** 2.0.0
 
 ## Funkcje
 
-- **Eksport komentarzy** — pobieranie komentarzy z dowolnego filmu na YouTube
-- **Anonimizacja** — automatyczne maskowanie nazw autorow (np. `@M****i`)
-- **Odpowiedzi (replies)** — opcjonalne pobieranie odpowiedzi z watkow
-- **Daty i polubienia** — kazdy komentarz zawiera date publikacji i liczbe lajkow
-- **Deduplikacja** — eliminacja powtorzonych komentarzy
-- **Eksport do .txt** — gotowy plik tekstowy z czytelnym formatowaniem
-- **Szybki wybor ilosci** — pobierz wszystkie lub ustaw limit (50, 100, 250, 500, 1000)
+- **Wszystkie komentarze** — scrolluje stronę aż do załadowania każdego wątku (detekcja spinnera YT, 20 prób bez nowych = stop)
+- **Wszystkie subkomentarze** — dwufazowe rozwijanie odpowiedzi:
+  - Faza 1: klika "Wyświetl X odpowiedzi" na każdym wątku
+  - Faza 2: klika "Więcej odpowiedzi" dla wątków z >10 odpowiedziami
+- **Eksport Excel (.xlsx)** — prawdziwy plik Excel z kolumnami: Nr, Typ, Autor, Data, Lajki, Treść
+- **Eksport TXT** — czytelny plik tekstowy z wcięciami dla odpowiedzi
+- **Anonimizacja** — automatyczne maskowanie nazw autorów (np. `@M****i`)
+- **Deduplikacja** — eliminacja powtórzonych komentarzy
+- **Limit lub wszystkie** — pobierz wszystkie albo ustaw konkretną liczbę (50 / 100 / 250 / 500 / 1000)
 
 ## Wymagania
 
-Rozszerzenie **Tampermonkey** dla przegladarki:
+Rozszerzenie **Tampermonkey** dla przeglądarki:
 
 - [Chrome Web Store](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)
 - [Firefox Add-ons](https://addons.mozilla.org/pl/firefox/addon/tampermonkey/)
 
-## Instalacja krok po kroku
+## Instalacja
 
 ### 1. Zainstaluj Tampermonkey
 
-1. Otworz przegladarke (Chrome, Firefox, Edge lub Safari).
-2. Wejdz na strone rozszerzenia Tampermonkey (link powyzej).
-3. Kliknij **Dodaj do Chrome** (lub odpowiednik w Twojej przegladarce).
-4. Potwierdz instalacje — ikona Tampermonkey pojawi sie obok paska adresu.
+1. Otwórz przeglądarkę (Chrome, Firefox, Edge lub Safari).
+2. Wejdź na stronę rozszerzenia Tampermonkey (link powyżej).
+3. Kliknij **Dodaj do Chrome** (lub odpowiednik w Twojej przeglądarce).
+4. Potwierdź instalację — ikona Tampermonkey pojawi się obok paska adresu.
 
 ### 2. Dodaj skrypt
 
-1. Kliknij ikone **Tampermonkey** w pasku narzedzi przegladarki.
-2. Wybierz **Utworz nowy skrypt...** (lub "Create a new script...").
-3. Usun cala domyslna zawartosc edytora (zaznacz wszystko `Ctrl+A` i usun).
-4. Otworz plik `yt-comments-scraper.user.js` z tego repozytorium.
-5. Skopiuj cala jego zawartosc (`Ctrl+A` → `Ctrl+C`).
+1. Kliknij ikonę **Tampermonkey** w pasku narzędzi przeglądarki.
+2. Wybierz **Utwórz nowy skrypt...** (lub "Create a new script...").
+3. Usuń całą domyślną zawartość edytora (`Ctrl+A` → `Delete`).
+4. Otwórz plik [`yt-comments-scraper.user.js`](yt-comments-scraper.user.js) z tego repozytorium.
+5. Skopiuj całą jego zawartość (`Ctrl+A` → `Ctrl+C`).
 6. Wklej do edytora Tampermonkey (`Ctrl+V`).
-7. Zapisz skrypt: **Ctrl+S** lub kliknij ikone dyskietki.
+7. Zapisz skrypt: **Ctrl+S** lub kliknij ikonę dyskietki.
 
-### 3. Gotowe — uzyj skryptu
+> **Uwaga:** Skrypt używa biblioteki SheetJS do generowania plików Excel. Jest ładowana automatycznie przez `@require` w nagłówku — nie musisz nic instalować ręcznie.
 
-1. Wejdz na dowolny film na **YouTube**.
-2. W prawym dolnym rogu pojawi sie przycisk **📥**.
-3. Kliknij go — otworzy sie panel z opcjami.
+### 3. Gotowe
 
-## Uzycie
+1. Wejdź na dowolny film na **YouTube**.
+2. W prawym dolnym rogu pojawi się przycisk **💬**.
+3. Kliknij go — otworzy się panel z opcjami.
 
-1. Kliknij przycisk **📥** w prawym dolnym rogu strony YouTube.
+## Użycie
+
+1. Kliknij przycisk **💬** w prawym dolnym rogu strony YouTube.
 2. Wybierz tryb pobierania:
-   - **Wszystkie** — pobiera wszystkie dostepne komentarze
+   - **Wszystkie** — pobiera wszystkie dostępne komentarze
    - **Liczba** — ustaw limit (szybkie przyciski: 50, 100, 250, 500, 1000)
 3. Opcjonalnie zaznacz **Pobierz odpowiedzi na komentarze**.
-4. Kliknij **Pobierz komentarze**.
-5. Skrypt automatycznie scrolluje strone, zbiera komentarze i pobiera plik `.txt`.
+4. Wybierz format: **Excel** lub **TXT**.
+5. Kliknij **Pobierz komentarze**.
+6. Skrypt automatycznie scrolluje stronę, zbiera komentarze i pobiera plik.
 
-## Format pliku wynikowego
+## Format pliku Excel
 
-Plik `.txt` zawiera:
+Plik `.xlsx` zawiera:
 
-- Naglowek z tytulem filmu, URL i data pobrania
-- Komentarze z zanonimizowanym autorem, data i liczba lajkow
-- Odpowiedzi wciete i oznaczone strzalka `↪`
-- Stopke z danymi autora
+| Nr | Typ | Autor | Data | Lajki | Treść komentarza |
+|----|-----|-------|------|-------|-----------------|
+| 1 | Komentarz | M*****i | 2 tygodnie temu | 42 | Treść... |
+| 2 | Odpowiedź | @J***n | 1 tydzień temu | 5 | Treść... |
 
-## Jak to dziala
+Pierwsze wiersze arkusza zawierają metadane: tytuł filmu, URL, datę pobrania i łączną liczbę elementów.
 
-Skrypt automatycznie scrolluje strone YouTube, laduje komentarze, rozwija watki z odpowiedziami, anonimizuje nazwy autorow i eksportuje dane do pliku tekstowego z czytelnym formatowaniem.
+## Jak to działa
+
+1. **Scroll** — skrypt scrolluje stronę do końca, czekając na załadowanie kolejnych wątków. Jeśli YT pokazuje spinner ładowania, nie liczy tego jako nieudanej próby.
+2. **Rozwijanie odpowiedzi** — dwufazowe klikanie przycisków "Wyświetl odpowiedzi" i "Więcej odpowiedzi".
+3. **Zbieranie danych** — wyciąga tekst, autora, datę i lajki z DOM YouTube.
+4. **Eksport** — generuje plik Excel (SheetJS) lub TXT i automatycznie pobiera.
+
+## Changelog
+
+### v2.0.0
+- Eksport do prawdziwego pliku Excel (.xlsx) przez SheetJS
+- Naprawione pobieranie WSZYSTKICH komentarzy (maxScrollRetries: 6 → 20, scrollPause: 1800 → 2500ms)
+- Detekcja spinnera YT — nie kończy scrollowania gdy strona jeszcze ładuje
+- Naprawione pobieranie WSZYSTKICH subkomentarzy (dwufazowe rozwijanie, obsługa wątków z >10 odpowiedziami)
+- Dynamiczny czas oczekiwania po rozwinięciu odpowiedzi
+
+### v1.8.2
+- Eksport do TXT
+- Anonimizacja autorów
+- Opcjonalne pobieranie odpowiedzi
 
 ## Licencja
 
-Projekt prywatny. Autor: Michal Marini.
+Projekt prywatny. Autor: Michał Marini — [LinkedIn](https://www.linkedin.com/in/michal-marini/)
