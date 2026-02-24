@@ -200,6 +200,7 @@
         const optionsRow = el('div', { margin: '14px 0', display: 'flex', alignItems: 'center', gap: '8px' });
         const replyCheckbox = document.createElement('input');
         replyCheckbox.type = 'checkbox'; replyCheckbox.id = 'yts-replies';
+        replyCheckbox.checked = true; // domyślnie zaznaczony
         Object.assign(replyCheckbox.style, { width: '16px', height: '16px', cursor: 'pointer' });
         const replyLabel = el('label', {
             color: C.ink, fontSize: '12px', fontWeight: '900',
