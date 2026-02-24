@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YT Comments Scraper v2
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0
+// @version      2.1.0
 // @description  Pobiera WSZYSTKIE komentarze i subkomentarze z YouTube. Eksport do Excel (.xlsx) lub TXT.
 // @author       Michał Marini
 // @match        https://www.youtube.com/*
@@ -343,7 +343,10 @@
             const spinner = document.querySelector(
                 'ytd-comments-header-renderer tp-yt-paper-spinner[active], ' +
                 'ytd-item-section-renderer ytd-spinner[active], ' +
-                '#continuations ytd-spinner'
+                '#continuations ytd-spinner, ' +
+                '#comments ytd-spinner[active], ' +
+                '#comments tp-yt-paper-spinner[active], ' +
+                'ytd-comments ytd-spinner[active]'
             );
             if (spinner) {
                 showStatus(`YT ŁADUJE... ${curr} WĄTKÓW (czekam na spinner)`);
@@ -383,7 +386,10 @@
             const expandBtn = thread.querySelector(
                 '#replies #expander #expander-item tp-yt-paper-button, ' +
                 '#replies #expander tp-yt-paper-button#expander-item, ' +
-                '#replies #more-replies button'
+                '#replies #more-replies button, ' +
+                '#replies ytd-button-renderer button, ' +
+                '#replies tp-yt-paper-button[aria-expanded="false"], ' +
+                '#replies yt-button-shape button'
             );
             if (expandBtn && expandBtn.offsetParent !== null) {
                 expandBtn.click();
@@ -411,7 +417,8 @@
                 const moreBtn = thread.querySelector(
                     '#replies ytd-continuation-item-renderer tp-yt-paper-button, ' +
                     '#replies ytd-continuation-item-renderer button, ' +
-                    '#replies #continuation tp-yt-paper-button'
+                    '#replies #continuation tp-yt-paper-button, ' +
+                    '#replies ytd-continuation-item-renderer yt-button-shape button'
                 );
                 if (moreBtn && moreBtn.offsetParent !== null) {
                     moreBtn.click();
@@ -440,10 +447,10 @@
 
         function parseCommentEl(cEl, isReply) {
             try {
-                const authorEl  = cEl.querySelector('#author-text span') || cEl.querySelector('#author-text');
-                const contentEl = cEl.querySelector('#content-text');
-                const dateEl    = cEl.querySelector('#published-time-text') || cEl.querySelector('.published-time-text');
-                const likesEl   = cEl.querySelector('#vote-count-middle');
+                const authorEl  = cEl.querySelector('#author-text span, #author-text, [id="author-text"]');
+                const contentEl = cEl.querySelector('#content-text, [id="content-text"], yt-formatted-string#content-text');
+                const dateEl    = cEl.querySelector('#published-time-text, .published-time-text, [id="published-time-text"]');
+                const likesEl   = cEl.querySelector('#vote-count-middle, [id="vote-count-middle"], #vote-count');
 
                 const author  = anonymizeAuthor(authorEl?.textContent?.trim() || 'Nieznany');
                 const content = contentEl?.textContent?.trim() || '';
@@ -462,11 +469,15 @@
 
         for (let i = 0; i < limit; i++) {
             const t = threads[i];
-            const mc = t.querySelector('#comment');
+            const mc = t.querySelector('#comment, [id="comment"]');
             if (mc) parseCommentEl(mc, false);
 
             if (includeReplies) {
-                const replies = t.querySelectorAll('#replies ytd-comment-view-model, #replies ytd-comment-renderer');
+                const replies = t.querySelectorAll(
+                    '#replies ytd-comment-view-model, ' +
+                    '#replies ytd-comment-renderer, ' +
+                    '#replies [id="comment"]'
+                );
                 replies.forEach(r => parseCommentEl(r, true));
             }
         }
@@ -540,6 +551,28 @@
         setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(dlUrl); }, 1000);
     }
 
+    // ─── DIAGNOSTYKA SELEKTORÓW ───────────────────────────────────────────────
+    function runDiagnostic() {
+        const thread = document.querySelector('ytd-comment-thread-renderer');
+        if (!thread) {
+            console.warn('[YT Scraper] Brak ytd-comment-thread-renderer w DOM');
+            return '❌ YT zmienił strukturę strony. Zgłoś błąd na github.com/MrCanon19/YT-Comments-Scraper';
+        }
+        const tests = [
+            { name: 'kontener',  sel: '#comment, [id="comment"]' },
+            { name: 'autor',     sel: '#author-text span, #author-text, [id="author-text"]' },
+            { name: 'treść',     sel: '#content-text, [id="content-text"]' },
+            { name: 'data',      sel: '#published-time-text, .published-time-text, [id="published-time-text"]' },
+        ];
+        const failed = tests.filter(t => !thread.querySelector(t.sel)).map(t => t.name);
+        if (failed.length === 0) {
+            console.warn('[YT Scraper] Selektory OK, komentarze puste');
+            return '⚠️ Selektory OK, ale komentarze puste. Odśwież stronę i spróbuj ponownie.';
+        }
+        console.warn('[YT Scraper] Zepsute selektory:', failed);
+        return `❌ Zepsute selektory: ${failed.join(', ')}. Zgłoś błąd na github.com/MrCanon19/YT-Comments-Scraper`;
+    }
+
     // ─── GŁÓWNA FUNKCJA SCRAPOWANIA ───────────────────────────────────────────
     async function startScraping(target, withReplies, exportFormat) {
         if (!bubble) return;
@@ -556,7 +589,12 @@
             showStatus('ZBIERAM DANE...');
             const comments = extractComments(target, withReplies);
 
-            if (!comments.length) { showStatus('BRAK TREŚCI.'); resetBubble('✕'); return; }
+            if (!comments.length) {
+                const diagnosis = runDiagnostic();
+                showStatus(diagnosis);
+                resetBubble('✕');
+                return;
+            }
 
             showStatus(`EKSPORTUJĘ ${comments.length} elementów...`);
             const title = getVideoTitle();

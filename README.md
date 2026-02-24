@@ -2,7 +2,7 @@
 
 Skrypt Tampermonkey do pobierania **WSZYSTKICH** komentarzy i subkomentarzy z YouTube. Eksport do pliku Excel (.xlsx) lub TXT.
 
-**Wersja:** 2.0.0
+**Wersja:** 2.1.0
 
 ## Funkcje
 
@@ -80,6 +80,11 @@ Pierwsze wiersze arkusza zawierają metadane: tytuł filmu, URL, datę pobrania 
 4. **Eksport** — generuje plik Excel (SheetJS) lub TXT i automatycznie pobiera.
 
 ## Changelog
+
+### v2.1.0
+- Więcej fallback selektorów CSS — odporność na drobne zmiany DOM YouTube
+- Lepsze wykrywanie spinnera ładowania (więcej wariantów)
+- Diagnostyka selektorów — gdy pobieranie zwróci 0 wyników, komunikat informuje które selektory się zepsuły i linkuje do zgłoszenia błędu na GitHub
 
 ### v2.0.0
 - Eksport do prawdziwego pliku Excel (.xlsx) przez SheetJS
